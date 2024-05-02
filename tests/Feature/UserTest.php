@@ -56,4 +56,21 @@ class UserTest extends TestCase
             ->get("/users/current")
             ->assertSeeText("Hello Farel");
     }
+
+    public function testTokenGuard()
+    {
+        $this->seed([UserSeeder::class]);
+
+        $this->get("/api/users/current", [
+            "Accept" => "application/json"
+        ])
+            ->assertStatus(401);
+
+        $this->get("/api/users/current", [
+            "Accept" => "application/json",
+            "API-Key" => "secret"
+        ])
+            ->assertSeeText("Hello Farel");
+
+    }
 }
