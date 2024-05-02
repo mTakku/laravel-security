@@ -54,6 +54,6 @@ class UserTest extends TestCase
         $user = User::where("email", "farel@localhost")->firstOrFail();
         $this->actingAs($user)
             ->get("/users/current")
-            ->assertSeeText("Hello farel");
+            ->assertSeeText("Hello Farel");
     }
 }
