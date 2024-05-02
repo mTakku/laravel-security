@@ -2,10 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use Database\Seeders\UserSeeder;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 
 class UserTest extends TestCase
@@ -29,5 +30,30 @@ class UserTest extends TestCase
     {
         $user = Auth::user();
         self::assertNull($user);
+    }
+
+    public function testLogin()
+    {
+        $this->seed([UserSeeder::class]);
+
+        $this->get("/users/login?email=farel@localhost&password=rahasia")
+            ->assertRedirect("/users/current");
+
+        $this->get("/users/login?email=salah&password=rahasia")
+            ->assertSeeText("Wrong credentials");
+    }
+
+    public function testCurrent()
+    {
+        $this->seed([UserSeeder::class]);
+
+        $this->get("/users/current")
+            ->assertStatus(302)
+            ->assertRedirect("/login");
+
+        $user = User::where("email", "farel@localhost")->firstOrFail();
+        $this->actingAs($user)
+            ->get("/users/current")
+            ->assertSeeText("Hello farel");
     }
 }
